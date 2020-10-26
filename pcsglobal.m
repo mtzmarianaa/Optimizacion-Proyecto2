@@ -20,9 +20,9 @@ function [x, lambda, k] = pcsglobal(fx, hx, x0)
 % ITAM
 % Optimización numérica
 % Otoño 2020
-% Integrantes:
-%   Mariana Graciela Martínez Aguilar 166297
-%
+% Equipo: Santiago Muriel
+%         Mariana G Martinez
+%         Roman Velez
 %
 
 % Obtenemos las dimensiones de nuestro problema:
@@ -34,40 +34,42 @@ m = length(hk); % numero de restricciones
 tol = 1e-05;
 maxk = 100;
 cMax = 1e+05;
-maxIter = 20; % máximo 
+maxIter = 10; % máximo 
 c1 = 1e-02;
 ck = 1; % Parámetro inicial para la función de mérito
+
 Bk = eye(n);
-Hk = Bk; % Hk es la inversa de Bk
 lambda = zeros(m,1); % lambda inicial
+
 gf = gradiente(fx, x0); % calcula el gradiente de fx en x0
 jh = jacobiana(hx, x0); % calcula la jacobiana de hx en x0
 vk = [gf + jh'*lambda; hk]; % condiciones necesarias de primer orden
 xk = x0;
-gf = gradiente(fx, xk); % calcula el gradiente inicial de fx en xk
 Ak = jacobiana(hx, xk); % calcula la jacobiana inicial de hx en xk
 
 % Empezamos con la parte iterativa
-k = 0;
+k = 1;
 
 while(norm(vk)>= tol && k <= maxk)
     
     
     % Paso 1, resolvemos el problema cuadrático para pk y lambda con
     % pcmera,m
-    [pk, lambda] = pcmera(Hk, Ak, gf ,-hk);
+    [pk, lambda] = pcmera(Bk, Ak, gf ,-hk);
     
     % Paso 2 elegimos una ck
-    if ( gf'*pk-ck* norm(hk, 1)>=0 )
+    if ( gf'*pk-ck* norm(hk, 1)< 0 )
+        ck = ck;
+    else
         ck = min( cMax, ( abs(gf'*pk)/norm(hk, 1) ) + 1 );
     end
     
     % Paso 3, hacemos una búsqueda en línea para encontrar el valor de
     % alpha
-    alpha = 10000;
+    alpha = 5;
     Dpk = gf'*pk - ck*norm(hk, 1);
     iter = 0;
-    while ( fMerito(fx, hx, xk + alpha*pk, ck) > fMerito(fx, hx, xk, ck)*(1+c1*alpha*Dpk)  && iter <= maxIter)
+    while ( fMerito(fx, hx, xk + alpha*pk, ck) > fMerito(fx, hx, xk, ck) + alpha*c1*Dpk  && iter <= maxIter)
         alpha = alpha/2;
         iter = iter + 1;
     end
@@ -77,9 +79,11 @@ while(norm(vk)>= tol && k <= maxk)
     xk = xk + alpha*pk;
     sk = alpha*pk;
     yk = gf + Ak'*lambda;
+    
     gf = gradiente(fx, xk); % calcula el gradiente actualizado
-    Ak = jacobiana(hx, xk); % calcula la jacobiana actualizada  
-    yk = yk - (gf + Ak'*lambda);
+    Ak = jacobiana(hx, xk); % calcula la jacobiana actualizada
+    
+    yk = -yk + (gf + Ak'*lambda);
     hk = feval(hx, xk);
     jh = jacobiana(hx, xk);
     
@@ -93,12 +97,11 @@ while(norm(vk)>= tol && k <= maxk)
     end
     % Actualizamos Bk y Hk, su inversa
     Bk = Bk - (Bk*(sk*sk')*Bk)/(sk'*Bk*sk) + (rk'*rk)/(sk'*rk);
-    Hk = Hk - (Hk*(rk'*rk)*Hk)/(rk'*Hk*rk) + (sk'*sk)/(rk'*sk);
     
     if( cond(Bk)>1e+04 )
         Bk = eye(n);
-        Hk = Bk;
     end
+    
     
     % Paso 6: Resolvemos el problema de mínimos cuadrados si es necesario
     
@@ -119,3 +122,6 @@ end
 x = xk;
 
 end
+
+
+

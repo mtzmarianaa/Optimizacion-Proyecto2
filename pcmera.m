@@ -1,4 +1,4 @@
-function [x, lambda] = pcmera(H, A,c,b)
+function [x, lambda] = pcmera(Q, A,c,b)
 % Este método ha sido modificado específicamente para el proyecto 2 de
 % optimización numérica.
 % Metodo del rango para el problema 
@@ -17,13 +17,17 @@ function [x, lambda] = pcmera(H, A,c,b)
 %    Optimización numérica
 %    ITAM
 %    25.ago.20  y  24.oct.20
+% Equipo: Santiago Muriel
+%         Mariana G Martinez
+%         Roman Velez
 
-B = A*H*A';
-ld = -(b + A*H*c);
+S = inv(Q);
+B = A*S*A';
+ld = -(b + A*S*c);
 
 % Usamos gradiente conjugado
 [lambda] = B\ld;
 
-x = -H*( c + A'*lambda);
+x = -S*( c + A'*lambda);
 
 end

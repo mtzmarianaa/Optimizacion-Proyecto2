@@ -2,6 +2,9 @@ function [jh] = jacobiana(hx, x0)
 % Calcula la matriz jacobiana de hx
 
 % EL GRADIENTE Y LA JACOBIANA SE TIENEN QUE APROXIMAR DE LA MISMA FORMA
+% Equipo: Santiago Muriel
+%         Mariana G Martinez
+%         Roman Velez
 
 n = length(x0);
 h = feval(hx, x0);

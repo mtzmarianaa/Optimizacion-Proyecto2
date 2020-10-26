@@ -5,6 +5,9 @@ function [phi] = fMerito(fx, hx, x, c)
 % hx.- Restricciones
 % x.-  Punto para evaluar la función
 % c.-  Pensalización
+% Equipo: Santiago Muriel
+%         Mariana G Martinez
+%         Roman Velez
 
 phi = feval(fx, x) + c*norm(feval(hx, x), 1);
 

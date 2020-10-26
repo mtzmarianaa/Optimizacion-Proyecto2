@@ -3,6 +3,9 @@ function [gf] = gradiente(fx, x0)
 % fx: R^n -> R
 %
 % (gf)_k = parcial de fx / parcial x_k
+% Equipo: Santiago Muriel
+%         Mariana G Martinez
+%         Roman Velez
 
 
 n = length(x0);
